@@ -58,7 +58,7 @@ int run_test(TypedOrderBook& order_book, TypedOrder** orders,
   timespec* timestamp = timestamps;
   do {
     // Take timestamp at start of each order
-    int status = clock_gettime(CLOCK_REALTIME, timestamp);
+    int status;// = clock_gettime(CLOCK_REALTIME, timestamp);
     if (status) {
       throw std::runtime_error("clock_gettime() failed");
     }
@@ -72,7 +72,7 @@ int run_test(TypedOrderBook& order_book, TypedOrder** orders,
     ++count;
   } while (true);
   // Take timestamp at end
-  int status = clock_gettime(CLOCK_REALTIME, timestamp);
+  int status;// = clock_gettime(CLOCK_REALTIME, timestamp);
   if (status) {
     throw std::runtime_error("clock_gettime() failed");
   }

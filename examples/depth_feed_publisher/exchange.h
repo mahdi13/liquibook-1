@@ -13,7 +13,8 @@ namespace liquibook { namespace examples {
 class Exchange {
 public:
   Exchange(ExampleOrderBook::TypedDepthListener* depth_listener,
-           ExampleOrderBook::TypedTradeListener* trade_listener);
+           ExampleOrderBook::TypedTradeListener* trade_listener,
+           ExampleOrderBook::TypedOrderListener* order_listener);
 
   // Permanently add an order book to the exchange
   void add_order_book(const std::string& symbol);
@@ -25,6 +26,7 @@ private:
   OrderBookMap order_books_;
   ExampleOrderBook::TypedDepthListener* depth_listener_;
   ExampleOrderBook::TypedTradeListener* trade_listener_;
+  ExampleOrderBook::TypedOrderListener* order_listener_;
 };
 
 } }

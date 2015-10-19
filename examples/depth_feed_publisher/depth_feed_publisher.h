@@ -21,10 +21,24 @@ namespace liquibook { namespace examples {
 
 class DepthFeedPublisher : public ExampleOrderBook::TypedDepthListener,
                            public ExampleOrderBook::TypedTradeListener,
+                           public ExampleOrderBook::TypedOrderListener,
                            public TemplateConsumer {
 public:
   DepthFeedPublisher();
   void set_connection(DepthFeedConnection* connection);
+
+  virtual void on_accept(const OrderPtr& order);
+  virtual void on_reject(const OrderPtr& order, const char* reason);
+  virtual void on_replace_reject(const OrderPtr& order, const char* reason);
+  virtual void on_fill(const OrderPtr& order,
+                   const OrderPtr& matched_order,
+                   book::Quantity fill_qty,
+                   book::Cost fill_cost);
+  virtual void on_cancel(const OrderPtr& order);
+  virtual void on_cancel_reject(const OrderPtr& order, const char* reason);
+  virtual void on_replace(const OrderPtr& order,
+                          const int32_t& size_delta,
+                          book::Price new_price);
 
   virtual void on_trade(
       const book::OrderBook<OrderPtr>* order_book,

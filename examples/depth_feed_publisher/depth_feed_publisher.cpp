@@ -10,6 +10,10 @@
 #include <Messages/FieldUInt8.h>
 #include <Messages/FieldUInt32.h>
 #include <Messages/Sequence.h>
+#include <json/json.h>
+#include <beanstalk.hpp>
+using namespace Beanstalk;
+using namespace Json;
 
 namespace liquibook { namespace examples { 
 
@@ -27,6 +31,48 @@ DepthFeedPublisher::set_connection(DepthFeedConnection* connection)
 }
 
 void
+DepthFeedPublisher::on_accept(const OrderPtr& order)
+{
+  std::cout << "on_accept " << order->id() << std::endl;
+}
+void
+DepthFeedPublisher::on_reject(const OrderPtr& order, const char* reason)
+{
+  std::cout << "on_reject " << std::endl;
+}
+void
+DepthFeedPublisher::on_replace_reject(const OrderPtr& order, const char* reason)
+{
+  std::cout << "on_replace_reject " << std::endl;
+}
+void
+DepthFeedPublisher::on_fill(const OrderPtr& order,
+                     const OrderPtr& matched_order,
+                     book::Quantity fill_qty,
+                     book::Cost fill_cost)
+{
+  std::cout << "on_fill.order......... " << order->id()<<" qty "<<order->order_qty() <<" qty "<<order.use_count() <<std::endl;
+  std::cout << "on_fill.matched_order. " << matched_order->id()<<" qty "<<matched_order->order_qty() <<std::endl;
+}
+void
+DepthFeedPublisher::on_cancel(const OrderPtr& order)
+{
+  std::cout << "on_cancel " << std::endl;
+}
+void
+DepthFeedPublisher::on_cancel_reject(const OrderPtr& order, const char* reason)
+{
+  std::cout << "on_cancel_reject " << std::endl;
+}
+void
+DepthFeedPublisher::on_replace(const OrderPtr& order,
+                            const int32_t& size_delta,
+                            book::Price new_price)
+{
+  std::cout << "on_replace " << std::endl;
+}
+
+void
 DepthFeedPublisher::on_trade(
     const book::OrderBook<OrderPtr>* order_book,
     book::Quantity qty,
@@ -40,7 +86,18 @@ DepthFeedPublisher::on_trade(
             << " qty " << qty
             << " cost " << cost << std::endl;
   build_trade_message(message, exob->symbol(), qty, cost);
+
   connection_->send_trade(message);
+//  std::cout << "connection.on_trade..................." << std::endl;
+//  std::cout << "connection.send_trade..................." << std::endl;
+  Json::Value data;
+  data["symbol"]  = exob->symbol();
+  data["qty"]     = qty;
+  data["cost"]    = cost;
+
+  Client client("192.168.147.130", 11300);
+  client.use("exchange.on_trade");
+  client.put(data.toStyledString());
 }
 
 void
@@ -52,12 +109,14 @@ DepthFeedPublisher::on_depth_change(
   QuickFAST::Messages::FieldSet message(20);
   const ExampleOrderBook* exob = 
           dynamic_cast<const ExampleOrderBook*>(order_book);
+//  std::cout << "connection.on_depth_change..................." << std::endl;
   build_depth_message(message, exob->symbol(), tracker, false);
   if (!connection_->send_incr_update(exob->symbol(), message)) {
     // Publish all levels of order book
     QuickFAST::Messages::FieldSet full_message(20);
     build_depth_message(full_message, exob->symbol(), tracker, true);
     connection_->send_full_update(exob->symbol(), full_message);
+//    std::cout << "connection.send_full_update..................." << std::endl;
   }
 }
  
@@ -81,6 +140,7 @@ DepthFeedPublisher::build_depth_message(
     const book::DepthOrderBook<OrderPtr>::DepthTracker* tracker,
     bool full_message)
 {
+//  std::cout << "build_depth_message..................." << full_message << std::endl;
   size_t bid_count(0), ask_count(0);
 
   message.addField(id_timestamp_, FieldUInt32::create(time_stamp()));
@@ -134,6 +194,15 @@ DepthFeedPublisher::build_depth_message(
             << " depth message for symbol " << symbol 
             << " with " << bid_count << " bids, "
             << ask_count << " asks" << std::endl;
+  Json::Value data;
+  data["symbol"]  = symbol;
+  data["bids"]    = (UInt64) bid_count;
+  data["asks"]    = (UInt64) ask_count;
+  data["full"]    = full_message;
+
+  Client client("192.168.147.130", 11300);
+  client.use("exchange.on_depth_change");
+  client.put(data.toStyledString());
 }
 
 void
