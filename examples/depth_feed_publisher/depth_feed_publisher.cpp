@@ -33,7 +33,7 @@ DepthFeedPublisher::set_connection(DepthFeedConnection* connection)
 void
 DepthFeedPublisher::on_accept(const OrderPtr& order)
 {
-  std::cout << "on_accept " << order->id() << std::endl;
+  std::cout << "on_accept " << order->id() <<" qty "<<order->order_qty() <<" open_qty "<<order->open_qty() << std::endl;
 }
 void
 DepthFeedPublisher::on_reject(const OrderPtr& order, const char* reason)
@@ -51,8 +51,8 @@ DepthFeedPublisher::on_fill(const OrderPtr& order,
                      book::Quantity fill_qty,
                      book::Cost fill_cost)
 {
-  std::cout << "on_fill.order......... " << order->id()<<" qty "<<order->order_qty() <<" qty "<<order.use_count() <<std::endl;
-  std::cout << "on_fill.matched_order. " << matched_order->id()<<" qty "<<matched_order->order_qty() <<std::endl;
+  std::cout << "on_fill.order......... " << order->id()<<" state "<< order->state()<<" qty "<< order->order_qty() <<" filled_qty "<<order->filled_qty() <<" open_qty "<<order->open_qty() <<std::endl;
+  std::cout << "on_fill.matched_order. " << matched_order->id()<<" state "<< matched_order->state() <<" qty "<< matched_order->order_qty() <<" filled_qty "<<matched_order->filled_qty() <<" open_qty "<<matched_order->open_qty() <<std::endl;
 }
 void
 DepthFeedPublisher::on_cancel(const OrderPtr& order)
