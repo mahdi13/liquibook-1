@@ -33,7 +33,31 @@ DepthFeedPublisher::set_connection(DepthFeedConnection* connection)
 void
 DepthFeedPublisher::on_accept(const OrderPtr& order)
 {
-  std::cout << "on_accept " << order->id() <<" qty "<<order->order_qty() <<" open_qty "<<order->open_qty() << std::endl;
+  Json::Value data;
+  data["event"]     = "on_accept";
+
+  data["order_id"]  = order->order_id();
+  data["symbol"]    = order->symbol();
+  data["account"]   = order->account();
+  data["is_buy"]    = order->is_buy();
+  data["order_qty"] = order->order_qty();
+  data["price"]     = order->price();
+  data["state"]     = order->state();
+
+  Client client("192.168.147.130", 11300);
+  client.use("engine");
+  client.put(data.toStyledString());
+
+//  Json::Value data;
+//  data["event"]         = "on_accept";
+//  data["order_id"]      = order->order_id();
+//  data["fill_qty"]      = order->order_id();
+//  data["fill_cost"]     = fill_cost;
+//
+//  Client client("192.168.147.130", 11300);
+//  client.use("engine");
+//  client.put(data.toStyledString());
+  std::cout << "on_accept " << order->order_id() <<" qty "<<order->order_qty() <<" open_qty "<<order->open_qty() << std::endl;
 }
 void
 DepthFeedPublisher::on_reject(const OrderPtr& order, const char* reason)
@@ -51,17 +75,42 @@ DepthFeedPublisher::on_fill(const OrderPtr& order,
                      book::Quantity fill_qty,
                      book::Cost fill_cost)
 {
-  std::cout << "on_fill.order......... " << order->id()<<" state "<< order->state()<<" qty "<< order->order_qty() <<" filled_qty "<<order->filled_qty() <<" open_qty "<<order->open_qty() <<std::endl;
-  std::cout << "on_fill.matched_order. " << matched_order->id()<<" state "<< matched_order->state() <<" qty "<< matched_order->order_qty() <<" filled_qty "<<matched_order->filled_qty() <<" open_qty "<<matched_order->open_qty() <<std::endl;
+  Json::Value data;
+  data["event"]            = "on_fill";
+  data["order_id"]         = order->order_id();
+  data["matched_order_id"] = matched_order->order_id();
+  data["fill_qty"]         = fill_qty;
+  data["fill_cost"]        = fill_cost;
+
+  Client client("192.168.147.130", 11300);
+  client.use("engine");
+  client.put(data.toStyledString());
+
+  std::cout << "on_fill.order......... " << order->order_id()<<" state "<< order->state()<<" qty "<< order->order_qty() <<" filled_qty "<<order->filled_qty() <<" open_qty "<<order->open_qty() <<std::endl;
+  std::cout << "on_fill.matched_order. " << matched_order->order_id()<<" state "<< matched_order->state() <<" qty "<< matched_order->order_qty() <<" filled_qty "<<matched_order->filled_qty() <<" open_qty "<<matched_order->open_qty() <<std::endl;
 }
 void
 DepthFeedPublisher::on_cancel(const OrderPtr& order)
 {
   std::cout << "on_cancel " << std::endl;
+  Json::Value data;
+  data["event"]         = "on_cancel";
+  data["order_id"]      = order->order_id();
+
+  Client client("192.168.147.130", 11300);
+  client.use("engine");
+  client.put(data.toStyledString());
 }
 void
 DepthFeedPublisher::on_cancel_reject(const OrderPtr& order, const char* reason)
 {
+  std::cout << "on_cancel_reject " << std::endl;
+  Json::Value data;
+  data["event"]         = "on_cancel";
+  data["order_id"]      = order->order_id();
+
+  Client client("192.168.147.130", 11300);
+  client.use("engine");
   std::cout << "on_cancel_reject " << std::endl;
 }
 void
@@ -70,6 +119,13 @@ DepthFeedPublisher::on_replace(const OrderPtr& order,
                             book::Price new_price)
 {
   std::cout << "on_replace " << std::endl;
+  Json::Value data;
+  data["event"]         = "on_replace";
+  data["order_id"]      = order->order_id();
+
+  Client client("192.168.147.130", 11300);
+  client.use("engine");
+  std::cout << "on_cancel_reject " << std::endl;
 }
 
 void
@@ -91,12 +147,13 @@ DepthFeedPublisher::on_trade(
 //  std::cout << "connection.on_trade..................." << std::endl;
 //  std::cout << "connection.send_trade..................." << std::endl;
   Json::Value data;
+  data["event"]   = "on_trade";
   data["symbol"]  = exob->symbol();
   data["qty"]     = qty;
   data["cost"]    = cost;
 
   Client client("192.168.147.130", 11300);
-  client.use("exchange.on_trade");
+  client.use("engine");
   client.put(data.toStyledString());
 }
 

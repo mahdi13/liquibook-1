@@ -44,13 +44,13 @@ ExampleOrderBook::perform_callback(SimpleCallback& cb)
       // Increment fill ID once
       ++fill_id_;
       // Update the orders
-      std::cout << "cb_order_fill " << " id " << cb.order->id() << " matched_id " << cb.matched_order->id() <<std::endl;
+      std::cout << "cb_order_fill " << " id " << cb.order->order_id() << " matched_id " << cb.matched_order->order_id() <<std::endl;
       std::cout << "cb_order_fill " << " cb.fill_qty " << cb.fill_qty << " fill_price " << cb.fill_price <<std::endl;
       book::Cost fill_cost = cb.fill_qty * cb.fill_price;
       cb.matched_order->fill(cb.fill_qty, fill_cost, fill_id_);
       cb.order->fill(cb.fill_qty, fill_cost, fill_id_);
-      std::cout << "cb_order_fill.order................. " << cb.order->id()<<" state "<< cb.order->state()<<" qty "<< cb.order->order_qty() <<" filled_qty "<<cb.order->filled_qty() <<" open_qty "<<cb.order->open_qty() <<std::endl;
-      std::cout << "cb_order_fill.matched_order......... " << cb.matched_order->id()<<" state "<< cb.matched_order->state()<<" qty "<< cb.matched_order->order_qty() <<" filled_qty "<<cb.matched_order->filled_qty() <<" open_qty "<<cb.matched_order->open_qty() <<std::endl;
+      std::cout << "cb_order_fill.order................. " << cb.order->order_id()<<" state "<< cb.order->state()<<" qty "<< cb.order->order_qty() <<" filled_qty "<<cb.order->filled_qty() <<" open_qty "<<cb.order->open_qty() <<std::endl;
+      std::cout << "cb_order_fill.matched_order......... " << cb.matched_order->order_id()<<" state "<< cb.matched_order->state()<<" qty "<< cb.matched_order->order_qty() <<" filled_qty "<<cb.matched_order->filled_qty() <<" open_qty "<<cb.matched_order->open_qty() <<std::endl;
       break;
     }
     case SimpleCallback::cb_order_cancel:

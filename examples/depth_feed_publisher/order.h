@@ -21,7 +21,7 @@ public:
         book::Quantity qty);
   Order(bool buy,
         const double& price,
-        book::Quantity qty, const string& account, const string& id);
+        book::Quantity qty, const string& account, const string& order_id, const string& symbol);
 
   const OrderState& state() const;
   const book::Cost& filled_cost() const;
@@ -29,8 +29,9 @@ public:
   virtual book::Quantity order_qty() const;
   virtual book::Quantity open_qty() const;
   virtual book::Price price() const;
+  virtual string order_id() const;
+  virtual string symbol() const;
   virtual string account() const;
-  virtual string id() const;
   virtual const book::Quantity& filled_qty() const;
 
 
@@ -41,8 +42,9 @@ public:
 
   static const uint8_t precision_;
 private:
+  string order_id_;
+  string symbol_;
   string account_;
-  string id_;
   OrderState state_;
 
   bool is_buy_;

@@ -4,22 +4,29 @@ namespace liquibook { namespace examples {
 
 const uint8_t Order::precision_(100);
 
-Order::Order(bool buy, const double& price, book::Quantity qty, const std::string& account, const std::string& id)
+Order::Order(bool buy, const double& price, book::Quantity qty, const std::string& account, const string& order_id, const string& symbol)
 : state_(os_new),
   is_buy_(buy),
   price_(price),
   order_qty_(qty),
   filled_qty_(0),
   filled_cost_(0),
-  id_(id),
-  account_(account)
+  order_id_(order_id),
+  account_(account),
+  symbol_(symbol)
 {
 }
 
 std::string
-Order::id() const
+Order::order_id() const
 {
-  return id_;
+  return order_id_;
+}
+
+std::string
+Order::symbol() const
+{
+  return symbol_;
 }
 
 std::string

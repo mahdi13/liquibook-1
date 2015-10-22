@@ -1,5 +1,6 @@
 #include <iostream>
 #include <boost/thread.hpp>
+#include <boost/format.hpp>
 #include "exchange.h"
 #include "depth_feed_publisher.h"
 #include "depth_feed_connection.h"
@@ -205,8 +206,21 @@ generate_orders(examples::Exchange& exchange, const SecurityVector& securities, 
   uint32_t count=0;
   while (true) {
     count += 1;
-    char id[10];
-    sprintf(id, "ID%08d" , count);
+    const boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    const boost::format f = boost::format("%s%02d%02d%02d%02d%02d%08d")
+                             % now.date().year_month_day().year
+                             % now.date().year_month_day().month.as_number()
+                             % now.date().year_month_day().day.as_number()
+                             % now.time_of_day().hours()
+                             % now.time_of_day().minutes()
+                             % now.time_of_day().seconds()
+                             % count;
+
+
+    const std::string order_id = f.str();
+
+//    char order_id[10];
+//    sprintf(order_id, "ID%08d" , count);
 
     // which security
     size_t index = std::rand() % num_securities;
@@ -227,21 +241,23 @@ generate_orders(examples::Exchange& exchange, const SecurityVector& securities, 
     book::Quantity qty = (std::rand() % 10 + 1) * 100;
 
     // order
-    examples::OrderPtr order(new examples::Order(is_buy, price, qty, account, (std::string)id));
+    examples::OrderPtr order(new examples::Order(is_buy, price, qty, account, (string)order_id, sec.symbol));
 
-//    std::cout << "add_order...." << " sn " << sn << " account " << order->account() << " symbol " << sec.symbol << " is_buy " << is_buy << " price " << price << " qty " << qty << std::endl;
+//    std::cout << "add_order...." << " order_id " << id << " account " << order->account() << " symbol " << sec.symbol << " is_buy " << is_buy << " price " << price << " qty " << qty << std::endl;
 
-    Json::Value data;
-    data["symbol"] = sec.symbol;
-    data["buy"]    = is_buy;
-    data["price"]  = price;
-    data["qty"]    = qty;
-    data["account"]= account;
-    data["id"]     = (std::string)id;
-
-    Client client("192.168.147.130", 11300);
-    client.use("exchange.add_order");
-    client.put(data.toStyledString());
+//    Json::Value data;
+//    data["event"] = "new_order";
+//
+//    data["symbol"] = sec.symbol;
+//    data["buy"]    = is_buy;
+//    data["price"]  = price;
+//    data["qty"]    = qty;
+//    data["account"]= account;
+//    data["id"]     = (std::string)id;
+//
+//    Client client("192.168.147.130", 11300);
+//    client.use("engine");
+//    client.put(data.toStyledString());
 
     // add order
     exchange.add_order(sec.symbol, order);
